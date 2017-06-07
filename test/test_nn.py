@@ -2086,40 +2086,40 @@ class TestNN(NNTestCase):
         self.assertTrue(gradcheck(lambda x, y: F.cosine_similarity(x, y, dim=-1), (input1, input2)))
 
     def test_upsamplingNearest2d(self):
-        m = nn.UpsamplingNearest2d(size=4)
+        m = nn.Upsample(size=4, mode='nearest')
         in_t = torch.ones(1, 1, 2, 2)
         out_t = m(Variable(in_t))
         self.assertEqual(torch.ones(1, 1, 4, 4), out_t.data)
 
         input = Variable(torch.randn(1, 1, 2, 2), requires_grad=True)
-        self.assertTrue(gradcheck(lambda x: F.upsample_nearest(x, 4), (input,)))
-
-    def test_upsamplingNearest3d(self):
-        m = nn.UpsamplingNearest3d(size=4)
-        in_t = torch.ones(1, 1, 2, 2, 2)
-        out_t = m(Variable(in_t))
-        self.assertEqual(torch.ones(1, 1, 4, 4, 4), out_t.data)
-
-        input = Variable(torch.randn(1, 1, 2, 2, 2), requires_grad=True)
-        self.assertTrue(gradcheck(lambda x: F.upsample_nearest(x, 4), (input,)))
+        self.assertTrue(gradcheck(lambda x: F.upsample(x, 4, mode='nearest'), (input,)))
 
     def test_upsamplingBilinear2d(self):
-        m = nn.UpsamplingBilinear2d(size=4)
+        m = nn.Upsample(size=4, mode='bilinear')
         in_t = torch.ones(1, 1, 2, 2)
         out_t = m(Variable(in_t))
         self.assertEqual(torch.ones(1, 1, 4, 4), out_t.data)
 
         input = Variable(torch.randn(1, 1, 2, 2), requires_grad=True)
-        self.assertTrue(gradcheck(lambda x: F.upsample_bilinear(x, 4), (input,)))
+        self.assertTrue(gradcheck(lambda x: F.upsample(x, 4, mode='bilinear'), (input,)))
 
-    def test_upsamplingTrilinear3d(self):
-        m = nn.UpsamplingTrilinear3d(size=4)
+    def test_upsamplingNearest3d(self):
+        m = nn.Upsample(size=4, mode='nearest')
         in_t = torch.ones(1, 1, 2, 2, 2)
         out_t = m(Variable(in_t))
         self.assertEqual(torch.ones(1, 1, 4, 4, 4), out_t.data)
 
         input = Variable(torch.randn(1, 1, 2, 2, 2), requires_grad=True)
-        self.assertTrue(gradcheck(lambda x: F.upsample_trilinear(x, 4), (input,)))
+        self.assertTrue(gradcheck(lambda x: F.upsample(x, 4, mode='nearest'), (input,)))
+
+    def test_upsamplingTrilinear3d(self):
+        m = nn.Upsample(size=4, mode='trilinear')
+        in_t = torch.ones(1, 1, 2, 2, 2)
+        out_t = m(Variable(in_t))
+        self.assertEqual(torch.ones(1, 1, 4, 4, 4), out_t.data)
+
+        input = Variable(torch.randn(1, 1, 2, 2, 2), requires_grad=True)
+        self.assertTrue(gradcheck(lambda x: F.upsample(x, 4, mode='trilinear'), (input,)))
 
     def test_bilinear(self):
         module = nn.Bilinear(10, 10, 8)
@@ -2951,84 +2951,88 @@ new_module_tests = [
         input_size=(1, 9, 4, 4),
     ),
     dict(
-        module_name='UpsamplingNearest2d',
-        constructor_args=(12,),
+        module_name='Upsample',
+        constructor_args=(12, None, 'nearest'),
         input_size=(1, 2, 4, 4),
+        desc='nearest_2d'
     ),
     dict(
-        module_name='UpsamplingNearest2d',
-        constructor_args=((12, 16)),
+        module_name='Upsample',
+        constructor_args=((12, 16), None, 'nearest'),
         input_size=(1, 2, 3, 4),
-        desc='tuple'
+        desc='nearest_tuple_2d'
     ),
     dict(
-        module_name='UpsamplingNearest2d',
-        constructor_args=(None, 4),
+        module_name='Upsample',
+        constructor_args=(None, 4, 'nearest'),
         input_size=(1, 2, 4, 4),
-        desc='scale'
+        desc='nearest_scale_2d'
     ),
     dict(
-        module_name='UpsamplingNearest3d',
-        constructor_args=(12,),
-        input_size=(1, 2, 4, 4, 4),
-    ),
-    dict(
-        module_name='UpsamplingNearest3d',
-        constructor_args=((12, 16, 16),),
-        input_size=(1, 2, 3, 4, 4),
-        desc='tuple'
-    ),
-    dict(
-        module_name='UpsamplingNearest3d',
-        constructor_args=(None, 4),
-        input_size=(1, 2, 4, 4, 4),
-        desc='scale'
-    ),
-    dict(
-        module_name='UpsamplingBilinear2d',
-        constructor_args=(12,),
+        module_name='Upsample',
+        constructor_args=(12, None, 'bilinear'),
         input_size=(1, 2, 4, 4),
+        desc='bilinear_2d'
     ),
     dict(
-        module_name='UpsamplingBilinear2d',
-        constructor_args=((4, 6)),
+        module_name='Upsample',
+        constructor_args=((4, 6), None, 'bilinear'),
         input_size=(1, 2, 2, 3),
-        desc='tuple'
+        desc='bilinear_tuple_2d'
     ),
     dict(
-        module_name='UpsamplingBilinear2d',
-        constructor_args=(None, 4),
+        module_name='Upsample',
+        constructor_args=(None, 4, 'bilinear'),
         input_size=(1, 2, 4, 4),
-        desc='scale'
+        desc='bilinear_scale_2d'
     ),
     dict(
-        module_name='UpsamplingBilinear2d',
-        constructor_args=(None, (2, 2)),
+        module_name='Upsample',
+        constructor_args=(None, (2, 2), 'bilinear'),
         input_size=(1, 2, 4, 4),
-        desc='scale_tuple_shared'
+        desc='bilinear_scale_tuple_shared_2d'
     ),
     dict(
-        module_name='UpsamplingBilinear2d',
-        constructor_args=(None, (2, 1)),
+        module_name='Upsample',
+        constructor_args=(None, (2, 1), 'bilinear'),
         input_size=(1, 2, 4, 4),
-        desc='scale_tuple_skewed'
+        desc='bilinear_scale_tuple_skewed_2d'
     ),
     dict(
-        module_name='UpsamplingTrilinear3d',
-        constructor_args=(12,),
+        module_name='Upsample',
+        constructor_args=(12, None, 'nearest'),
         input_size=(1, 2, 4, 4, 4),
+        desc='nearest_3d'
     ),
     dict(
-        module_name='UpsamplingTrilinear3d',
-        constructor_args=((4, 6, 6),),
+        module_name='Upsample',
+        constructor_args=((12, 16, 16), None, 'nearest'),
+        input_size=(1, 2, 3, 4, 4),
+        desc='nearest_tuple_3d'
+    ),
+    dict(
+        module_name='Upsample',
+        constructor_args=(None, 4, 'nearest'),
+        input_size=(1, 2, 4, 4, 4),
+        desc='nearest_scale_3d'
+    ),
+    dict(
+        module_name='Upsample',
+        constructor_args=(12, None, 'trilinear'),
+        input_size=(1, 2, 4, 4, 4),
+        desc='trilinear_3d'
+    ),
+    dict(
+        module_name='Upsample',
+        constructor_args=((4, 6, 6), None, 'trilinear'),
         input_size=(1, 2, 2, 3, 3),
-        desc='tuple'
+        desc='trilinear_tuple_3d'
     ),
     dict(
-        module_name='UpsamplingTrilinear3d',
-        constructor_args=(None, 4),
+        module_name='Upsample',
+        constructor_args=(None, 4, 'trilinear'),
         input_size=(1, 2, 4, 4, 4),
-        desc='scale'
+        desc='trilinear_scale_3d'
     ),
     dict(
         module_name='AdaptiveMaxPool1d',
